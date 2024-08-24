@@ -25,9 +25,19 @@ pub fn write_tag(dest: &Path) {
 }
 
 fn main() {
+    let _ = remove_file("ok.flac");
+    copy("sample.flac", "ok.flac").expect("copy failed");
+    Command::new("metaflac")
+        .args(["--set-tag", "GENRE=Whatever", "ok.flac"])
+        .status()
+        .expect("can't set tag");
+    Command::new("flac")
+        .args(["-t", "ok.flac"])
+        .status()
+        .expect("file is corrupted");
+
     let _ = remove_file("bad.flac");
     copy("sample.flac", "bad.flac").expect("copy failed");
-    println!("copied to bad.flac");
     write_tag(Path::new("bad.flac"));
     println!("wrote tag to bad.flac");
     Command::new("flac")
